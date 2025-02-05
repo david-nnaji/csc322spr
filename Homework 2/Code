@@ -1,0 +1,139 @@
+// Import THREE
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+// Import OrbitControls
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+// Scene + camera + renderer
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 710;
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Dimensions
+const baseHeight = 555;
+const baseWidth = 55;
+const tipHeight = 55;
+
+// Colors 
+const baseColors = [
+    new THREE.Color(0xff0000), // Red
+    new THREE.Color('lime'),   // Green
+    new THREE.Color('rgb(0, 0, 255)'), // Blue
+    new THREE.Color('yellow')  // Yellow
+];
+
+const tipColors = [
+    new THREE.Color('Coral'),   // Coral
+    new THREE.Color('cyan'),     // Cyan
+    new THREE.Color('rgb(255, 165, 0)'), // Orange
+    new THREE.Color(0x00aaff)    // Light Blue
+];
+
+// Function to create a single face as two triangles
+function createFace(vertices, color) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+    geometry.computeVertexNormals();
+
+    const material = new THREE.MeshStandardMaterial({ color, side: THREE.FrontSide }); // One-sided material
+    return new THREE.Mesh(geometry, material);
+}
+
+// Functionsfor defining vertices
+function vertices1() {
+    return [
+        -baseWidth, -baseHeight / 2, baseWidth,  baseWidth, -baseHeight / 2, baseWidth,  baseWidth / 2, baseHeight / 2, baseWidth / 2,
+        -baseWidth, -baseHeight / 2, baseWidth,  baseWidth / 2, baseHeight / 2, baseWidth / 2,  -baseWidth / 2, baseHeight / 2, baseWidth / 2
+    ];
+}
+
+function vertices2() {
+    return [
+        baseWidth, -baseHeight / 2, baseWidth,  baseWidth, -baseHeight / 2, -baseWidth,  baseWidth / 2, baseHeight / 2, -baseWidth / 2,
+        baseWidth, -baseHeight / 2, baseWidth,  baseWidth / 2, baseHeight / 2, -baseWidth / 2,  baseWidth / 2, baseHeight / 2, baseWidth / 2
+    ];
+}
+
+function vertices3() {
+    return [
+        baseWidth, -baseHeight / 2, -baseWidth,  -baseWidth, -baseHeight / 2, -baseWidth,  -baseWidth / 2, baseHeight / 2, -baseWidth / 2,
+        baseWidth, -baseHeight / 2, -baseWidth,  -baseWidth / 2, baseHeight / 2, -baseWidth / 2,  baseWidth / 2, baseHeight / 2, -baseWidth / 2
+    ];
+}
+
+function vertices4() {
+    return [
+        -baseWidth, -baseHeight / 2, -baseWidth,  -baseWidth, -baseHeight / 2, baseWidth,  -baseWidth / 2, baseHeight / 2, baseWidth / 2,
+        -baseWidth, -baseHeight / 2, -baseWidth,  -baseWidth / 2, baseHeight / 2, baseWidth / 2,  -baseWidth / 2, baseHeight / 2, -baseWidth / 2
+    ];
+}
+
+// Base faces
+const baseFaces = [vertices1(), vertices2(), vertices3(), vertices4()];
+baseFaces.forEach((face, index) => {
+    const mesh = createFace(face, baseColors[index]);
+    scene.add(mesh);
+});
+
+// Separate functions for tip vertices
+function tipVertices1() {
+    return [
+        -baseWidth / 2, baseHeight / 2, baseWidth / 2,  baseWidth / 2, baseHeight / 2, baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0,
+        -baseWidth / 2, baseHeight / 2, baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0, -baseWidth / 2, baseHeight / 2, baseWidth / 2
+    ];
+}
+
+function tipVertices2() {
+    return [
+        baseWidth / 2, baseHeight / 2, baseWidth / 2,  baseWidth / 2, baseHeight / 2, -baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0,
+        baseWidth / 2, baseHeight / 2, baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0, baseWidth / 2, baseHeight / 2, baseWidth / 2
+    ];
+}
+
+function tipVertices3() {
+    return [
+        baseWidth / 2, baseHeight / 2, -baseWidth / 2,  -baseWidth / 2, baseHeight / 2, -baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0,
+        baseWidth / 2, baseHeight / 2, -baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0, -baseWidth / 2, baseHeight / 2, -baseWidth / 2
+    ];
+}
+
+function tipVertices4() {
+    return [
+        -baseWidth / 2, baseHeight / 2, -baseWidth / 2,  -baseWidth / 2, baseHeight / 2, baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0,
+        -baseWidth / 2, baseHeight / 2, -baseWidth / 2,  0, baseHeight / 2 + tipHeight, 0, -baseWidth / 2, baseHeight / 2, -baseWidth / 2
+    ];
+}
+
+// Create tip faces
+const tipFaces = [tipVertices1(), tipVertices2(), tipVertices3(), tipVertices4()];
+tipFaces.forEach((face, index) => {
+    const mesh = createFace(face, tipColors[index]);
+    scene.add(mesh);
+});
+
+// Lighting
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(1, 1, 1);
+scene.add(light);
+												// behind the monument was too dark
+const light2 = new THREE.DirectionalLight(0xffffff, 1);
+light2.position.set(-1, 1, -1);
+scene.add(light2);
+
+const ambientLight = new THREE.AmbientLight(0x404040, 1);
+scene.add(ambientLight);
+
+// OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+
+// Animation
+const animate = () => {
+    requestAnimationFrame(animate);
+    scene.rotation.y += 0.01;
+    renderer.render(scene, camera);
+};
+
+animate();
